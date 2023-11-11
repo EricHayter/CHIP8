@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <inttypes.h>
+#include "stack.h"
 
 #define ADDRESS_OFFSET 0x200
 #define INSTRUCTION_SIZE 0xFFF - ADDRESS_OFFSET
@@ -18,16 +19,18 @@ uint16_t pc = 0x0;   // program counter (TODO check if this needs an offset)
 
 int main(int argc, char **argv)
 {
-    uint16_t *instructionpointer;
-    char *filename = argv[1];
-    uint16_t instructions[INSTRUCTION_SIZE]; // 0-255 values
-    if (readfile(filename, instructions)) // reading failed
-        return 1;
-    for (int i = 0; i < 20; i++) {
-        printf("%04X\n", instructions[i]);
-    }
+    push(32);
+    printf("%d", pop());
+    // uint16_t *instructionpointer;
+    // char *filename = argv[1];
+    // uint16_t instructions[INSTRUCTION_SIZE]; // 0-255 values
+    // if (readfile(filename, instructions)) // reading failed
+    //     return 1;
+    // for (int i = 0; i < 20; i++) {
+    //     printf("%04X\n", instructions[i]);
+    // }
 
-    instructionpointer = &instructions[0]; 
+    // instructionpointer = &instructions[0]; 
 }
 
 uint16_t mergeinstruction(uint8_t b1, uint8_t b0)
