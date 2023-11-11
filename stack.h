@@ -2,7 +2,8 @@
 #define STACK_H
 
 #include <stdint.h>
-void push(uint16_t val) {
-uint16_t pop()
+void push(uint16_t val);
+uint16_t pop();
+uint8_t size();
 
-#endif
+#endif 

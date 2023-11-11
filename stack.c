@@ -21,3 +21,8 @@ uint16_t pop()
 	}
 	return stack[--sp];
 }
+
+uint8_t size()
+{
+    return sp;
+}
