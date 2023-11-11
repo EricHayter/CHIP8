@@ -6,21 +6,25 @@
 
 int readfile(const char *filename, uint16_t *instructions);
 uint16_t mergeinstruction(uint8_t b1, uint8_t b0);
-void parseinstruction(uint8_t *instruction);
-uint8_t getfirstbyte(uint16_t instruction);
+void parseinstruction(uint16_t *instruction);
+void printscreen();
+void clearscreen();
+
+uint8_t gr[16]; // general purpose register
+uint16_t ir;    // "I" register
+uint8_t sr, dr; // sound and delay registers
+uint64_t screen[32]; // 64x32 screensize monochrome
+uint16_t pc = 0x0;   // program counter (TODO check if this needs an offset)
 
 int main(int argc, char **argv)
 {
-    printf("%04X\n", getfirstbyte(0x00EE));
-    printf("%04X\n", getfirstbyte(0x20EE));
-
     uint16_t *instructionpointer;
     char *filename = argv[1];
     uint16_t instructions[INSTRUCTION_SIZE]; // 0-255 values
     if (readfile(filename, instructions)) // reading failed
         return 1;
     for (int i = 0; i < 20; i++) {
-         printf("%04X\n", instructions[i]);
+        printf("%04X\n", instructions[i]);
     }
 
     instructionpointer = &instructions[0]; 
@@ -33,24 +37,42 @@ uint16_t mergeinstruction(uint8_t b1, uint8_t b0)
     return instruction + b0;
 }
 
-void parseinstruction(uint8_t *instruction)
+void parseinstruction(uint16_t *instruction)
 {
-    uint8_t firstb = getfirstbyte(*instruction);
-    switch(firstb) {
-        case 0x00:
+    switch(*instruction / 0x1000) {
+        case 0x0:
             // 0nnn
             if (*instruction == 0x00E0) {
-                // clear the display
+                clearscreen();
             } else if (*instruction == 0x00EE) {
                 // return to the top of the stack
             }
             break;
+        case 0x1:
+           pc = *instruction % 1000;
+           break;
+
     }
 }
 
-uint8_t getfirstbyte(uint16_t instruction)
+void printscreen()
 {
-    return instruction / 0x1000;
+    for (int i = 0; i < 32; i++) {
+        uint64_t cp = screen[i]; 
+        while (cp) {
+            if (cp >> 63 && 1)
+                printf("#");
+            else
+                printf(" ");
+        }
+        printf("\n");
+    }
+}
+
+void clearscreen()
+{
+    for (int i = 0; i < 32; i++)
+        screen[i] = 0;
 }
 
 int readfile(const char *filename, uint16_t *instructions)
