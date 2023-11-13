@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <time.h>
+#include <curses.h>
 
 
 void parseinstruction(uint16_t *instruction);
@@ -90,7 +91,50 @@ void parseinstruction(uint16_t *instruction)
                       break;
                   }
         case 0x8: {
-                      // this is going to be aids
+                      uint8_t x = (*instruction % 0x1000) / 0x100;
+                      uint8_t y = (*instruction % 0x100) / 0x10;
+                      uint8_t end = *instruction % 0x10;
+                      if (end == 0x0) {
+                          gr[x] = gr[y];
+                      } else if (end == 0x1) {
+                          gr[x] = gr[x] | gr[y];
+                      } else if (end == 0x2) {
+                          gr[x] = gr[x] & gr[y];
+                      } else if (end == 0x3) {
+                          gr[x] = gr[x] ^ gr[y];
+                      } else if (end == 0x4) {
+                          uint8_t t = gr[x];  
+                          gr[x] = gr[x] + gr[y];
+                          if (t > gr[x])
+                              gr[0xF] = 1;
+                          else 
+                              gr[0xF] = 0;
+                      } else if (end == 0x5) {
+                          if (gr[x] > gr[y])
+                              gr[0xF] = 1;
+                          else 
+                              gr[0xF] = 0;
+                          gr[x] -= gr[y];
+                      } else if (end == 0x6) {
+                          if (gr[x] / 0x80)
+                              gr[0xF] = 1;
+                          else
+                              gr[0xF] = 0;
+                          gr[x] /= 2;
+                      } else if (end == 0x7) {
+                          if (gr[y] > gr[x])
+                              gr[0xF] = 1;
+                          else
+                              gr[0xF] = 0;
+                          gr[x] -= gr[y];
+                      } else if (end == 0xE) {
+                          if (gr[x] / 0x80)
+                              gr[0xF] = 1;
+                          else
+                              gr[0xF] = 0;
+                          gr[x] *= 2;
+                      }
+                      break;
                   }
         case 0x9: {
                       uint8_t x = (*instruction % 0x1000) / 0x100; // this could be wrong too
@@ -108,10 +152,25 @@ void parseinstruction(uint16_t *instruction)
                       break;
                   }
         case 0xC: {
-                    uint8_t x = (*instruction % 0x1000) / 100;
-                    uint8_t kk = *instruction % 0x100; 
-                    gr[x] = (rand() % 255) & kk;
-                    break;
+                      uint8_t x = (*instruction % 0x1000) / 100;
+                      uint8_t kk = *instruction % 0x100; 
+                      gr[x] = (rand() % 255) & kk;
+                      break;
+                  }
+        case 0xD: {
+                      // do this one later
+                  }
+        case 0xE: {
+                      uint8_t end = (*instruction % 100);
+                      if (end == 0x9E) {
+                          // check the keyboard state
+                      } else if (end == 0xA1) {
+                          // check the keybaord state
+                      }
+                      break;
+                  }
+        case 0xF: {
+
                   }
     }
 }
