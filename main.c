@@ -22,8 +22,13 @@ int16_t pc = 0x0;   // program counter (TODO check if this needs an offset)
 int main(int argc, char **argv)
 {
     srand(time(NULL));
-    push(32);
-    printf("%d", pop());
+    initscr();
+    printw("Hello world!");
+    refresh();
+    uint8_t key = getch();
+    printw(" %d", key);
+    getch();
+    endwin();
     // uint16_t *instructionpointer;
     // char *filename = argv[1];
     // uint16_t instructions[INSTRUCTION_SIZE]; // 0-255 values
@@ -34,6 +39,7 @@ int main(int argc, char **argv)
     // }
 
     // instructionpointer = &instructions[0]; 
+    return 0;
 }
 
 void parseinstruction(uint16_t *instruction)
