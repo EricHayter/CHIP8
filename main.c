@@ -27,17 +27,8 @@ int main(int argc, char **argv)
 
     srand(time(NULL));  // RNG for program
     initscr();          // ncurses setup
-                        //
-    // printbyte(0xFF, 0xF, 0xF);
-    for (int i = 0; i < 32; i++) {
-        printw("%d\n", i);
-    };
-    refresh();
-    sleep(3);
-    
-    uint8_t i;
-    for (pc = 0x0; pc < 4096; pc += 2) {
-        // printf("%04X\n", mergeinstruction(instructions[pc], instructions[pc+1]));
+    for (pc = 512; pc < 4096; pc += 2) {
+        printw("%04X\n", mergeinstruction(instructions[pc], instructions[pc+1]));
         parseinstruction(mergeinstruction(instructions[pc], instructions[pc+1]));
         usleep(100000);
     }
@@ -141,8 +132,7 @@ void parseinstruction(uint16_t instruction)
                           if (gr[x] / 0x80)
                               gr[0xF] = 1;
                           else
-                              gr[0xF] = 0;
-                          gr[x] *= 2;
+                              gr[0xF] = 0; gr[x] *= 2;
                       }
                       break;
                   }

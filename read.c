@@ -22,7 +22,7 @@ int readfile(const char *filename, uint8_t *instructions)
     fseek(fp, 0L, SEEK_SET);
 
     for (long i = 0L; i < filesize; i++) {
-        instructions[i] = fgetc(fp);
+        instructions[i+512] = fgetc(fp);
     }
 
     fclose(fp);

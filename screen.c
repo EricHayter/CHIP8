@@ -14,6 +14,7 @@ void printscreen()
                 printw("#");
             else
                 printw(" ");
+            cp <<= 1;
         }
         printw("\n");
     }
@@ -27,12 +28,14 @@ void printsprite(uint8_t *sprite, uint8_t size, uint8_t x, uint8_t y) {
 }
 
 void printbyte(uint8_t b, uint8_t x, uint8_t y) {
-    uint64_t nb = (x << (0)) |
-        (x >> ((sizeof(x) * 8 - (0) %
-               (sizeof(x) * 8))));
+    uint64_t nb = (uint64_t)(x);
+    if (x <= 56) {
+        nb <<= sizeof(uint64_t) - sizeof(x) - x;
+    } else {
+        nb = nb;
+    }
+
     screen[y] = nb ^ screen[y];   
-    printw("%lu", nb);
-    refresh();
     printscreen();
 }
 
