@@ -9,7 +9,7 @@ uint16_t mergeinstruction(uint8_t b1, uint8_t b0)
     return instruction + b0;
 }
 
-int readfile(const char *filename, uint16_t *instructions)
+int readfile(const char *filename, uint8_t *instructions)
 {
     FILE *fp = fopen(filename, "r");
     if (fp == NULL) {
@@ -21,10 +21,8 @@ int readfile(const char *filename, uint16_t *instructions)
     long filesize = ftell(fp);
     fseek(fp, 0L, SEEK_SET);
 
-    uint8_t c;
-    for (long i = 0L; i < filesize/2; i++) {
-        c = fgetc(fp);
-        instructions[i] = mergeinstruction(c, fgetc(fp));
+    for (long i = 0L; i < filesize; i++) {
+        instructions[i] = fgetc(fp);
     }
 
     fclose(fp);

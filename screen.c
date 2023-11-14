@@ -1,6 +1,7 @@
 #include "screen.h"
 #include <stdint.h>
 #include <stdio.h>
+#include <curses.h>
 
 static uint64_t screen[32]; 
                      
@@ -10,12 +11,29 @@ void printscreen()
         uint64_t cp = screen[i]; 
         while (cp) {
             if (cp >> 63 && 1)
-                printf("#");
+                printw("#");
             else
-                printf(" ");
+                printw(" ");
         }
-        printf("\n");
+        printw("\n");
     }
+    refresh();
+}
+
+void printsprite(uint8_t *sprite, uint8_t size, uint8_t x, uint8_t y) {
+    for (uint8_t i = 0; i < size; i++) {
+        printbyte(*(sprite+i), x, y+i);
+    }
+}
+
+void printbyte(uint8_t b, uint8_t x, uint8_t y) {
+    uint64_t nb = (x << (0)) |
+        (x >> ((sizeof(x) * 8 - (0) %
+               (sizeof(x) * 8))));
+    screen[y] = nb ^ screen[y];   
+    printw("%lu", nb);
+    refresh();
+    printscreen();
 }
 
 void clearscreen()
