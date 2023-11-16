@@ -28,7 +28,7 @@ int main(int argc, char **argv)
     srand(time(NULL));  // RNG for program
     initscr();          // ncurses setup
     for (pc = 512; pc < 4096; pc += 2) {
-        printw("%04X\n", mergeinstruction(instructions[pc], instructions[pc+1]));
+        // printw("%04X\n", mergeinstruction(instructions[pc], instructions[pc+1]));
         parseinstruction(mergeinstruction(instructions[pc], instructions[pc+1]));
         usleep(100000);
     }
@@ -161,7 +161,7 @@ void parseinstruction(uint16_t instruction)
                       uint8_t n = instruction % 0x10;
                       uint8_t y = (instruction % 0x100) / 0x10;
                       uint8_t x = (instruction % 0x1000) / 0x100;
-                      printsprite(&instructions[ir], n, x, y); // This could be broken
+                      printsprite(&instructions[ir], n, gr[x], gr[y]); // This could be broken
                       break;
                   }
         case 0xE: {

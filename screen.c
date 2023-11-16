@@ -7,14 +7,14 @@ static uint64_t screen[32];
                      
 void printscreen()
 {
+    clear();
     for (int i = 0; i < 32; i++) {
         uint64_t cp = screen[i]; 
-        while (cp) {
-            if (cp >> 63 && 1)
+        for (int j = 63; j >= 0; j--) {
+            if ((cp >> j) & 1)
                 printw("#");
             else
                 printw(" ");
-            cp <<= 1;
         }
         printw("\n");
     }
@@ -23,20 +23,19 @@ void printscreen()
 
 void printsprite(uint8_t *sprite, uint8_t size, uint8_t x, uint8_t y) {
     for (uint8_t i = 0; i < size; i++) {
-        printbyte(*(sprite+i), x, y+i);
+        loadbytetoscreen(*(sprite+i), x, y+i);
     }
+    printscreen();
 }
 
-void printbyte(uint8_t b, uint8_t x, uint8_t y) {
-    uint64_t nb = (uint64_t)(x);
+void loadbytetoscreen(uint8_t b, uint8_t x, uint8_t y) {
+    uint64_t nb = (uint64_t)(b);
     if (x <= 56) {
-        nb <<= sizeof(uint64_t) - sizeof(x) - x;
+        nb <<=  64-8 - x;
     } else {
         nb = nb;
     }
-
     screen[y] = nb ^ screen[y];   
-    printscreen();
 }
 
 void clearscreen()
