@@ -8,19 +8,19 @@
 #include <time.h>
 #include <curses.h>
 #include <unistd.h>
-#include <pthread.h>
 
+// TODO debugging on the brix game, currently getting stunlocked on pc=564 and keep circling
+// on the same point. For some reason the value of V[0] needs to be 0 but isn't when read
+// PC 560 we set to 64????????????????????
+// we aren't printing correctly for some reason?
 
 void parseinstruction(uint8_t inststrt, uint8_t instend);
-void *readinput();
 
 uint8_t gr[16]; // general purpose register
 uint16_t ir;    // "I" register
 uint8_t sr, dr; // sound and delay registers
 uint8_t instructions[4096];
 int16_t pc;   // program counter (TODO check if this needs an offset)
-uint8_t input;
-uint8_t blockinginput = 0; // some input requires blocking
 
 int main(int argc, char **argv)
 {
@@ -30,26 +30,18 @@ int main(int argc, char **argv)
     }
 
     srand(time(NULL));  // RNG for program
-    pthread_t thread_id;
-    pthread_create(&thread_id, NULL, readinput, NULL);
-    initscr();          // ncurses setup
+    initscr();
+    noecho();           // ncurses setup stuff
+    cbreak();
+    timeout(0);
+
     for (pc = 512; pc < 4096; pc += 2) {
         parseinstruction(instructions[pc], instructions[pc+1]);
-        usleep(100000);
+        usleep(5000);
     }
 
     endwin();
     return 0;
-}
-
-// async function to gather input for games
-void *readinput() {
-    while (1) {
-        input = getch(); 
-        if (blockinginput != 0) {
-            blockinginput = 0;
-        }
-    }
 }
 
 
@@ -71,10 +63,9 @@ void parseinstruction(uint8_t instrstart, uint8_t instrend)
         case 0x2: {
                       push(pc);
                       pc = mergeinstruction(instrstart % 0x10, instrend);
-                      push(pc);
                       break;
                   }
-        case 0x3: { // the mod could be wrong tbh
+        case 0x3: { 
                       uint8_t x = instrstart % 0x10;
                       if (gr[x] == instrend)
                           pc += 2;
@@ -149,7 +140,7 @@ void parseinstruction(uint8_t instrstart, uint8_t instrend)
                       break;
                   }
         case 0x9: {
-                      uint8_t x = instrstart % 0x10; // this could be wrong too
+                      uint8_t x = instrstart % 0x10;
                       uint8_t y = instrend / 0x10;
                       if (gr[x] != gr[y])
                           pc += 2;
@@ -172,16 +163,16 @@ void parseinstruction(uint8_t instrstart, uint8_t instrend)
                       uint8_t n = instrend % 0x10;
                       uint8_t y = instrend / 0x10;
                       uint8_t x = instrstart % 0x10;
-                      printsprite(&instructions[ir], n, gr[x], gr[y]); // This could be broken
+                      printsprite(&instructions[ir], n, gr[x], gr[y]);
                       break;
                   }
         case 0xE: {
                       uint8_t end = instrend;
                       uint8_t x = instrstart % 0x10;
                       uint32_t key = getch();
-                      if (end == 0x9E && key == gr[x]) {
+                      if (end == 0x9E && getch() == gr[x]) {
                           pc += 2; 
-                      } else if (end == 0xA1 && key != gr[x]) {
+                      } else if (end == 0xA1 && getch() != gr[x]) {
                           pc += 2;
                       }
                       break;
@@ -191,19 +182,29 @@ void parseinstruction(uint8_t instrstart, uint8_t instrend)
                       if (instrend == 0x07) {
                           gr[x] = dr;
                       } else if (instrend == 0x0A) {
-                        blockinginput = 1;
-                        while (blockinginput) // this might be blocking forever not really sure
-                            ;
-                        gr[x] = input;
+                          timeout(-1);
+                          gr[x] = getch();
+                          timeout(0);
                       } else if (instrend == 0x15) {
-                        dr = gr[x];
+                          dr = gr[x];
                       } else if (instrend == 0x18) {
                           sr = gr[x];
                       } else if (instrend == 0x1E) {
-                        ir += gr[x]; 
+                          ir += gr[x]; // TODO implement 0xFx29 (hardcode in hex sprites)
+                      } else if (instrend == 0x33) {
+                          instructions[ir] = (x % 1000) / 100;
+                          instructions[ir+1] = (x % 100) / 10;
+                          instructions[ir+2] = x % 10;
+                      } else if (instrend == 0x55) {
+                          for (uint8_t i = 0; i < x; i++) {
+                              instructions[ir+i] = gr[i];
+                          }
+                      } else if (instrend == 0x65) {
+                          for (uint8_t i = 0; i < x; i++) {
+                              gr[i] = instructions[ir+i];
+                          }
                       }
                       break;
-                      // will implement this later
                   }
     }
 }
