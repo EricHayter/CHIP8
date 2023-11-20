@@ -9,9 +9,8 @@ void printscreen()
 {
     clear();
     for (int i = 0; i < 32; i++) {
-        uint64_t cp = screen[i]; 
         for (int j = 63; j >= 0; j--) {
-            if ((cp >> j) & 1)
+            if ((screen[i] >> j) & 1)
                 printw("#");
             else
                 printw(" ");
@@ -21,21 +20,23 @@ void printscreen()
     refresh();
 }
 
-void printsprite(uint8_t *sprite, uint8_t size, uint8_t x, uint8_t y) {
+uint8_t printsprite(uint8_t *sprite, uint8_t size, uint8_t x, uint8_t y) {
+    uint8_t change;
     for (uint8_t i = 0; i < size; i++) {
-        loadbytetoscreen(*(sprite+i), x, y+i);
+        change = loadbytetoscreen(*(sprite+i), x, y+i);
     }
     printscreen();
+    return change;
 }
 
-void loadbytetoscreen(uint8_t b, uint8_t x, uint8_t y) {
-    uint64_t nb = (uint64_t)(b);
-    if (x <= 56) {
-        nb <<=  64-8 - x;
-    } else {
-        nb = nb;
+uint8_t loadbytetoscreen(uint8_t b, uint8_t x, uint8_t y) {
+    uint64_t nb = 0x0;
+    for (uint8_t i = 0; i < sizeof(uint8_t); i++) {
+       nb += (uint64_t)(b) << ((127 - x - i) % 64); 
     }
+    uint64_t prev = screen[y];
     screen[y] = nb ^ screen[y];   
+    return (~screen[y] & prev) != 0;
 }
 
 void clearscreen()
