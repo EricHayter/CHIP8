@@ -13,7 +13,6 @@
 // on the same point. For some reason the value of V[0] needs to be 0 but isn't when read
 // PC 560 we set to 64????????????????????
 // we aren't printing correctly for some reason?
-// errasing the bars in brix.ch8
 
 void parseinstruction(uint8_t inststrt, uint8_t instend);
 
@@ -110,7 +109,7 @@ void parseinstruction(uint8_t instrstart, uint8_t instrend)
                       } else if (end == 0x4) {
                           uint8_t t = gr[x];  
                           gr[x] = gr[x] + gr[y];
-                          if (t > gr[x]) // original value is bigger than current (overflow)
+                          if (t > gr[x])
                               gr[0xF] = 1;
                           else 
                               gr[0xF] = 0;
@@ -121,7 +120,7 @@ void parseinstruction(uint8_t instrstart, uint8_t instrend)
                               gr[0xF] = 0;
                           gr[x] -= gr[y];
                       } else if (end == 0x6) {
-                          if (gr[x] % 0x10)
+                          if (gr[x] / 0x80)
                               gr[0xF] = 1;
                           else
                               gr[0xF] = 0;
@@ -133,11 +132,10 @@ void parseinstruction(uint8_t instrstart, uint8_t instrend)
                               gr[0xF] = 0;
                           gr[x] -= gr[y];
                       } else if (end == 0xE) {
-                          if (gr[x] >> 7)
+                          if (gr[x] / 0x80)
                               gr[0xF] = 1;
                           else
-                              gr[0xF] = 0; 
-                          gr[x] *= 2;
+                              gr[0xF] = 0; gr[x] *= 2;
                       }
                       break;
                   }
@@ -153,7 +151,7 @@ void parseinstruction(uint8_t instrstart, uint8_t instrend)
                       break;
                   }
         case 0xB: {
-                      pc = (uint16_t)(gr[0]) + mergeinstruction(instrstart % 0x10, instrend);
+                      pc = gr[0] + mergeinstruction(instrstart % 0x10, instrend);
                       break;
                   }
         case 0xC: {
@@ -165,7 +163,7 @@ void parseinstruction(uint8_t instrstart, uint8_t instrend)
                       uint8_t n = instrend % 0x10;
                       uint8_t y = instrend / 0x10;
                       uint8_t x = instrstart % 0x10;
-                      gr[0xF] = printsprite(&instructions[ir], n, gr[x], gr[y]);
+                      printsprite(&instructions[ir], n, gr[x], gr[y]);
                       break;
                   }
         case 0xE: {
@@ -192,9 +190,7 @@ void parseinstruction(uint8_t instrstart, uint8_t instrend)
                       } else if (instrend == 0x18) {
                           sr = gr[x];
                       } else if (instrend == 0x1E) {
-                          ir += gr[x];
-                    } else if (instrend == 0x29) {
-                        ir = (uint16_t)(gr[x]) * 5;
+                          ir += gr[x]; // TODO implement 0xFx29 (hardcode in hex sprites)
                       } else if (instrend == 0x33) {
                           instructions[ir] = (x % 1000) / 100;
                           instructions[ir+1] = (x % 100) / 10;
