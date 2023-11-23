@@ -14,6 +14,10 @@
 // PC 560 we set to 64????????????????????
 // we aren't printing correctly for some reason?
 // errasing the bars in brix.ch8
+//
+// even getting maze to work doesn't seem right
+// why is it removing things from the screen?
+// read the values that it is printing from for the lines (am I reading wrong?)
 
 void parseinstruction(uint8_t inststrt, uint8_t instend);
 
@@ -23,6 +27,7 @@ uint8_t sr, dr; // sound and delay registers
 uint8_t instructions[4096];
 int16_t pc;   // program counter (TODO check if this needs an offset)
 
+//
 int main(int argc, char **argv)
 {
     char *filename = argv[1];
@@ -38,7 +43,6 @@ int main(int argc, char **argv)
 
     for (pc = 512; pc < 4096; pc += 2) {
         parseinstruction(instructions[pc], instructions[pc+1]);
-        usleep(5000);
     }
 
     endwin();
@@ -109,7 +113,7 @@ void parseinstruction(uint8_t instrstart, uint8_t instrend)
                           gr[x] = gr[x] ^ gr[y];
                       } else if (end == 0x4) {
                           uint8_t t = gr[x];  
-                          gr[x] = gr[x] + gr[y];
+                          gr[x] += gr[y];
                           if (t > gr[x]) // original value is bigger than current (overflow)
                               gr[0xF] = 1;
                           else 
@@ -121,7 +125,7 @@ void parseinstruction(uint8_t instrstart, uint8_t instrend)
                               gr[0xF] = 0;
                           gr[x] -= gr[y];
                       } else if (end == 0x6) {
-                          if (gr[x] % 0x10)
+                          if (gr[x] & 0x1)
                               gr[0xF] = 1;
                           else
                               gr[0xF] = 0;
@@ -131,9 +135,9 @@ void parseinstruction(uint8_t instrstart, uint8_t instrend)
                               gr[0xF] = 1;
                           else
                               gr[0xF] = 0;
-                          gr[x] -= gr[y];
+                          gr[x] = gr[y] - gr[x];
                       } else if (end == 0xE) {
-                          if (gr[x] >> 7)
+                          if (gr[x] >> 7) // this might have an effect but I doubt it
                               gr[0xF] = 1;
                           else
                               gr[0xF] = 0; 
@@ -153,7 +157,7 @@ void parseinstruction(uint8_t instrstart, uint8_t instrend)
                       break;
                   }
         case 0xB: {
-                      pc = (uint16_t)(gr[0]) + mergeinstruction(instrstart % 0x10, instrend);
+                      pc = (uint16_t)(gr[0]) + mergeinstruction(instrstart % 0x10, instrend); // unlikely to be a problem but might be
                       break;
                   }
         case 0xC: {
@@ -162,10 +166,11 @@ void parseinstruction(uint8_t instrstart, uint8_t instrend)
                       break;
                   }
         case 0xD: {
-                      uint8_t n = instrend % 0x10;
-                      uint8_t y = instrend / 0x10;
                       uint8_t x = instrstart % 0x10;
+                      uint8_t y = instrend / 0x10;
+                      uint8_t n = instrend % 0x10; // I think the draw routine is still messed up
                       gr[0xF] = printsprite(&instructions[ir], n, gr[x], gr[y]);
+                      usleep(500);
                       break;
                   }
         case 0xE: {
@@ -193,8 +198,8 @@ void parseinstruction(uint8_t instrstart, uint8_t instrend)
                           sr = gr[x];
                       } else if (instrend == 0x1E) {
                           ir += gr[x];
-                    } else if (instrend == 0x29) {
-                        ir = (uint16_t)(gr[x]) * 5;
+                      } else if (instrend == 0x29) {
+                          ir = (uint16_t)(gr[x]) * 5;
                       } else if (instrend == 0x33) {
                           instructions[ir] = (x % 1000) / 100;
                           instructions[ir+1] = (x % 100) / 10;

@@ -4,9 +4,7 @@
 
 uint16_t mergeinstruction(uint8_t b1, uint8_t b0)
 {
-    uint16_t instruction = b1;
-    instruction *= 0x100;
-    return instruction + b0;
+    return (uint16_t)(b1) * 0x100 + b0;
 }
 
 int readfile(const char *filename, uint8_t *instructions)

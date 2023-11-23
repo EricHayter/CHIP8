@@ -3,7 +3,7 @@
 #define STACKSIZE 16
 
 static uint8_t sp = 0;
-static uint16_t stack[16];
+static uint16_t stack[STACKSIZE];
 
 void push(uint16_t val) {
 	if (sp >= STACKSIZE) {
