@@ -1,5 +1,5 @@
 #include "screen.h"
-#include <stdint.h> 
+#include <stdint.h>
 #include <stdio.h>
 #include <curses.h>
 
@@ -32,9 +32,9 @@ uint8_t printsprite(uint8_t *sprite, uint8_t size, uint8_t x, uint8_t y) {
 uint8_t loadbytetoscreen(uint8_t b, uint8_t x, uint8_t y) {
     x = x % 64;
     uint64_t shiftedvalue;
-    if (x + sizeof(b)*8 > 64) {
-        shiftedvalue = ((uint64_t)b) >> (x + sizeof(b)*8 - 64);
-        shiftedvalue |= ((uint64_t)b) << ((sizeof(b)*8 + x));
+    if (x + sizeof(b)*8 >= 64) {
+        shiftedvalue = ((uint64_t)b) << (64 - x - sizeof(b)*8);
+        shiftedvalue |= ((uint64_t)b) >> (x + sizeof(b)*8 - 64);
     } else {
         shiftedvalue = ((uint64_t)b) << (64 - x - sizeof(b)*8);
     }
