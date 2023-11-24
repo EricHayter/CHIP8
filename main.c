@@ -9,15 +9,7 @@
 #include <curses.h>
 #include <unistd.h>
 
-// TODO debugging on the brix game, currently getting stunlocked on pc=564 and keep circling
-// on the same point. For some reason the value of V[0] needs to be 0 but isn't when read
-// PC 560 we set to 64????????????????????
-// we aren't printing correctly for some reason?
-// errasing the bars in brix.ch8
-//
-// even getting maze to work doesn't seem right
-// why is it removing things from the screen?
-// read the values that it is printing from for the lines (am I reading wrong?)
+#define SLEEP 10000
 
 void parseinstruction(uint8_t inststrt, uint8_t instend);
 
@@ -43,6 +35,11 @@ int main(int argc, char **argv)
 
     for (pc = 512; pc < 4096; pc += 2) {
         parseinstruction(instructions[pc], instructions[pc+1]);
+        usleep(SLEEP);
+        if (sr != 0)
+            sr--;
+        if (dr != 0)
+            dr--;
     }
 
     endwin();
@@ -157,7 +154,7 @@ void parseinstruction(uint8_t instrstart, uint8_t instrend)
                       break;
                   }
         case 0xB: {
-                      pc = (uint16_t)(gr[0]) + mergeinstruction(instrstart % 0x10, instrend); // unlikely to be a problem but might be
+                      pc = (uint16_t)(gr[0]) + mergeinstruction(instrstart % 0x10, instrend) - 2;
                       break;
                   }
         case 0xC: {
@@ -170,7 +167,6 @@ void parseinstruction(uint8_t instrstart, uint8_t instrend)
                       uint8_t y = instrend / 0x10;
                       uint8_t n = instrend % 0x10; // I think the draw routine is still messed up
                       gr[0xF] = printsprite(&instructions[ir], n, gr[x], gr[y]);
-                      usleep(10000);
                       break;
                   }
         case 0xE: {
@@ -205,11 +201,11 @@ void parseinstruction(uint8_t instrstart, uint8_t instrend)
                           instructions[ir+1] = (x % 100) / 10;
                           instructions[ir+2] = x % 10;
                       } else if (instrend == 0x55) {
-                          for (uint8_t i = 0; i < x; i++) {
+                          for (uint8_t i = 0; i <= x; i++) {
                               instructions[ir+i] = gr[i];
                           }
                       } else if (instrend == 0x65) {
-                          for (uint8_t i = 0; i < x; i++) {
+                          for (uint8_t i = 0; i <= x; i++) {
                               gr[i] = instructions[ir+i];
                           }
                       }
