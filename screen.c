@@ -11,8 +11,11 @@ void printscreen()
     for (int i = 0; i < 32; i++) {
         for (int j = 63; j >= 0; j--) {
             if ((screen[i] >> j) & 1)
-                mvaddch(i, j, '#');
+                printw("#");
+            else
+                printw(" ");
         }
+        printw("\n");
     }
     refresh();
 }

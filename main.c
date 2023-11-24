@@ -62,7 +62,7 @@ void parseinstruction(uint8_t instrstart, uint8_t instrend)
                       break;
                   }
         case 0x1: {
-                      pc = mergeinstruction(instrstart % 0x10, instrend);
+                      pc = mergeinstruction(instrstart % 0x10, instrend) - 2;
                       break;
                   }
         case 0x2: {
@@ -170,7 +170,7 @@ void parseinstruction(uint8_t instrstart, uint8_t instrend)
                       uint8_t y = instrend / 0x10;
                       uint8_t n = instrend % 0x10; // I think the draw routine is still messed up
                       gr[0xF] = printsprite(&instructions[ir], n, gr[x], gr[y]);
-                      usleep(500);
+                      usleep(10000);
                       break;
                   }
         case 0xE: {
