@@ -17,7 +17,8 @@ uint8_t gr[16]; // general purpose register
 uint16_t ir;    // "I" register
 uint8_t sr, dr; // sound and delay registers
 uint8_t instructions[4096];
-int16_t pc;   // program counter (TODO check if this needs an offset)
+uint16_t pc;   // program counter (TODO check if this needs an offset)
+int8_t key;
 
 //
 int main(int argc, char **argv)
@@ -64,7 +65,7 @@ void parseinstruction(uint8_t instrstart, uint8_t instrend)
                   }
         case 0x2: {
                       push(pc);
-                      pc = mergeinstruction(instrstart % 0x10, instrend);
+                      pc = mergeinstruction(instrstart % 0x10, instrend) - 2;
                       break;
                   }
         case 0x3: { 
@@ -172,10 +173,20 @@ void parseinstruction(uint8_t instrstart, uint8_t instrend)
         case 0xE: {
                       uint8_t end = instrend;
                       uint8_t x = instrstart % 0x10;
-                      uint32_t key = getch();
-                      if (end == 0x9E && getch() == gr[x]) {
+                      int8_t t = getch();
+                      if (t == ERR) {
+                          t = key;
+                      } else {
+                          key = t;
+                      }
+
+                      if (gr[x] >= 0 || gr[x] <= 9) {
+                        t -= '0';
+                      }
+
+                      if (end == 0x9E && t == gr[x]) {
                           pc += 2; 
-                      } else if (end == 0xA1 && getch() != gr[x]) {
+                      } else if (end == 0xA1 && t != gr[x]) {
                           pc += 2;
                       }
                       break;
@@ -197,9 +208,9 @@ void parseinstruction(uint8_t instrstart, uint8_t instrend)
                       } else if (instrend == 0x29) {
                           ir = (uint16_t)(gr[x]) * 5;
                       } else if (instrend == 0x33) {
-                          instructions[ir] = (x % 1000) / 100;
-                          instructions[ir+1] = (x % 100) / 10;
-                          instructions[ir+2] = x % 10;
+                          instructions[ir] = (gr[x] % 1000) / 100;
+                          instructions[ir+1] = (gr[x] % 100) / 10;
+                          instructions[ir+2] = gr[x] % 10;
                       } else if (instrend == 0x55) {
                           for (uint8_t i = 0; i <= x; i++) {
                               instructions[ir+i] = gr[i];

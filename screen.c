@@ -15,7 +15,7 @@ void printscreen()
             else
                 printw(" ");
         }
-        printw("#\n");
+        printw("\n");
     }
     refresh();
 }
@@ -38,7 +38,7 @@ uint8_t loadbytetoscreen(uint8_t b, uint8_t x, uint8_t y) {
     } else {
         shiftedvalue = ((uint64_t)b) << (64 - x - sizeof(b)*8);
     }
-    uint8_t change = screen[y] | (screen[y] & shiftedvalue);
+    uint8_t change = (screen[y] & ~shiftedvalue) > 0;
     screen[y] = screen[y] ^ shiftedvalue;
     return change;
 }
