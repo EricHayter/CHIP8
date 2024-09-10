@@ -8,15 +8,32 @@ static uint64_t screen[32];
 void printscreen()
 {
     clear();
+
+	// print top border
+	for (int i = 0; i < 64 + 2; i++)
+		printw("*");
+	printw("\n");
+	
     for (int i = 0; i < 32; i++) {
+		// print side border
+		printw("*");
         for (int j = 63; j >= 0; j--) {
             if ((screen[i] >> j) & 1)
                 printw("#");
             else
                 printw(" ");
         }
+		
+		// print side border
+		printw("*");
         printw("\n");
     }
+
+	// print bottom border
+	for (int i = 0; i < 64 + 2; i++)
+		printw("*");
+	printw("\n");
+
     refresh();
 }
 

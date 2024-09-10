@@ -9,7 +9,7 @@
 #include <curses.h>
 #include <unistd.h>
 
-#define SLEEP 10000
+#define SLEEP 1000
 
 void parseinstruction(uint8_t inststrt, uint8_t instend);
 
@@ -17,7 +17,7 @@ uint8_t gr[16]; // general purpose register
 uint16_t ir;    // "I" register
 uint8_t sr, dr; // sound and delay registers
 uint8_t instructions[4096];
-uint16_t pc;   // program counter (TODO check if this needs an offset)
+uint16_t pc;  
 int8_t key;
 
 //
@@ -166,7 +166,7 @@ void parseinstruction(uint8_t instrstart, uint8_t instrend)
         case 0xD: {
                       uint8_t x = instrstart % 0x10;
                       uint8_t y = instrend / 0x10;
-                      uint8_t n = instrend % 0x10; // I think the draw routine is still messed up
+                      uint8_t n = instrend % 0x10; 
                       gr[0xF] = printsprite(&instructions[ir], n, gr[x], gr[y]);
                       break;
                   }

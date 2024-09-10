@@ -11,7 +11,7 @@ int readfile(const char *filename, uint8_t *instructions)
 {
     FILE *fp = fopen(filename, "r");
     if (fp == NULL) {
-        printf("error: could not read file %s", filename);
+        printf("error: could not read file %s\n", filename);
         return 1;
     }
 
@@ -25,7 +25,9 @@ int readfile(const char *filename, uint8_t *instructions)
 
     fclose(fp);
 
-    // start writting in hardcoded digits
+	// make sure to include the ascii characters for printing to
+	// the screen. 
+    
     // 0
     instructions[0] = 0xF0;    
     instructions[1] = 0x90;    
