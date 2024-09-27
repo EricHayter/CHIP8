@@ -12,6 +12,7 @@ To play a game, in your terminal simply run `main` with a provided CHIP-8 progra
 Three programs have been included in the `demofiles/` directory.
 
 ### breakout.ch8
+![screenshot of breakout gameplay](images/breakout.png)
 This is the classic game of breakout that you may have played on your blackberry. Rules are simple you have a paddle that you need to move to hit a moving ball with the goal of the game being to break all of the bricks on the other side without the ball getting past you.
 
 Controls:
@@ -19,12 +20,15 @@ Move paddle left: `4`
 Move paddle right: `6`
 
 ### zero.ch8
+![screenshot of zero program](images/zero.png)
 This is just a little fun animation of the word zero with the letters moving around the screen.
 
-### sirpinski.ch8
+### sierpinski.ch8
+![screenshot of sierpinski program](images/sierpinski.png)
 Simple program to print out the famous Sierpinski triangle.
 
 ### blitz.ch8
+![screenshot of blitz gameplay](images/blitz.png)
 Not my favorite game but it's not bad. Goal of the game is to drop a projectile to remove columns as your ship is flying missing creates another column that you need to destroy.
 
 Controls:
